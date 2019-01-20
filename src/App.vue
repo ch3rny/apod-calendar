@@ -41,6 +41,7 @@ body {
 }
 #nav {
   height: 64px;
+  //background-color: #845ec2;
   background-color: #af8cff;
   line-height: 64px;
   font-size: 24px;

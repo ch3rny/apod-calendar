@@ -1,7 +1,12 @@
 <template>
   <div class="content">
-    <loader v-if="loading"/>
-    <div v-if="!loading" class="calendar">
+    <v-loader v-if="loading"/>
+    <v-error
+      v-if="error"
+      :code="errorResponse.response.data.code"
+      :message="errorResponse.response.data.msg"
+    />
+    <div v-if="!loading && !error" class="calendar">
       <div v-for="day in days" class="day" :key="day">{{day}}</div>
       <!--  -->
       <div
@@ -20,12 +25,14 @@
 <script>
 // @ is an alias to /src
 import { extractDate, getYouTubeThumbnail, getPictureThumbnail } from "@/utils";
-import Loader from "@/components/Loader.vue";
+import VLoader from "@/components/VLoader.vue";
+import VError from "@/components/VError.vue";
 import { getMonthlyApod } from "@/api";
 export default {
   name: "home",
   components: {
-    Loader
+    VLoader,
+    VError
   },
   data() {
     return {
@@ -34,7 +41,9 @@ export default {
       month: new Date().getMonth(),
       dateArray: [],
       nasaData: [],
-      loading: true
+      loading: true,
+      error: false,
+      errorResponse: {}
     };
   },
   computed: {},
@@ -85,16 +94,25 @@ export default {
       let endDateValue =
         endDate <= new Date() ? extractDate(endDate) : extractDate(new Date());
       //тянем данные по апи
-      getMonthlyApod(startDateValue, endDateValue).then(res => {
-        this.nasaData = res.data.map(item => ({
-          ...item,
-          thumb: getPictureThumbnail(item.date)
-        }));
-        this.loading = false;
-      });
-      // .catch(err => {
-      //   console.log(err);
-      // });
+      this.error = false;
+      getMonthlyApod(startDateValue, endDateValue)
+        .then(res => {
+          this.nasaData = res.data.map(item => ({
+            ...item,
+            thumb: getPictureThumbnail(item.date)
+          }));
+          this.loading = false;
+          // this.nasaData.forEach(item => {
+          //   if (item.media_type != "image") {
+          //     console.log(item.url);
+          //   }
+          // });
+        })
+        .catch(err => {
+          this.error = true;
+          this.loading = false;
+          this.errorResponse = err;
+        });
     },
     goToDetails(index) {
       if (this.nasaData[index]) {
@@ -111,10 +129,17 @@ export default {
     }
   },
   mounted() {
+    //if
     this.fillCalendar(this.year, this.month);
   },
   created() {
     this.$eventHub.$on("changeDate", this.setDate);
+    if (this.$route.query.year) {
+      this.year = this.$route.query.year;
+    }
+    if (this.$route.query.month) {
+      this.month = this.$route.query.month;
+    }
   },
 
   beforeDestroy() {

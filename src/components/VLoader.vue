@@ -6,6 +6,7 @@
       <div>loading...</div>
     </div>
   </div>
+  <!-- 🛰️ -->
 </template>
 
 <script>

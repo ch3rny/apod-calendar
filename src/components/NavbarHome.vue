@@ -14,18 +14,18 @@ export default {
       year: new Date().getFullYear(),
       month: new Date().getMonth(),
       monthNames: [
-        "Январь",
-        "Февраль",
-        "Март",
-        "Апрель",
-        "Май",
-        "Июнь",
-        "Июль",
-        "Август",
-        "Сентябрь",
-        "Октябрь",
-        "Ноябрь",
-        "Декабрь"
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
       ]
     };
   },
@@ -55,6 +55,14 @@ export default {
         this.year = this.year + 1;
       }
       this.$eventHub.$emit("changeDate", this.month, this.year);
+    }
+  },
+  created() {
+    if (this.$route.query.year) {
+      this.year = this.$route.query.year;
+    }
+    if (this.$route.query.month) {
+      this.month = this.$route.query.month;
     }
   }
 };

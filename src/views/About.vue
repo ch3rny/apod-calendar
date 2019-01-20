@@ -1,7 +1,7 @@
 <template>
   <div class="content">
-    <!-- <h1>This is an about pag of {{date}}</h1> -->
-    <loader v-if="loading"/>
+    <v-error v-if="error"/>
+    <v-loader v-if="loading"/>
     <div v-else>
       <div class="image" v-if="apod.media_type=='image'">
         <a :href="apod.hdurl">
@@ -16,19 +16,32 @@
       <div class="title">{{apod.title}}</div>
       <div class="explanation">{{apod.explanation}}</div>
     </div>
+    <div class="back_button">
+      <router-link
+        :to="{ name: 'home',
+          query: {year: year, 
+          month: month} }"
+      >📅 Back to Calendar</router-link>
+    </div>
   </div>
 </template>
 <script>
 import { getDailyApod } from "@/api";
-import Loader from "@/components/Loader.vue";
+import { getMonth, getYear } from "@/utils";
+import VLoader from "@/components/VLoader.vue";
+import VError from "@/components/VError.vue";
 export default {
   components: {
-    Loader
+    VLoader,
+    VError
   },
   data() {
     return {
       apod: {},
-      loading: true
+      loading: true,
+      error: false,
+      year: null,
+      month: null
     };
   },
   computed: {
@@ -40,17 +53,25 @@ export default {
     // эта функция запускается при любом изменении даты
     date: function() {
       this.loading = true;
-      getDailyApod(this.date).then(res => {
-        this.apod = res.data;
-        this.loading = false;
-      });
+      this.error = false;
+      this.getData(this.date);
+    }
+  },
+  methods: {
+    getData(date) {
+      getDailyApod(date)
+        .then(res => {
+          this.apod = res.data;
+          this.loading = false;
+          this.year = getYear(date);
+          this.month = getMonth(date);
+        })
+        // eslint-disable-next-line
+        .catch(err => (this.error = true));
     }
   },
   mounted() {
-    getDailyApod(this.date).then(res => {
-      this.apod = res.data;
-      this.loading = false;
-    });
+    this.getData(this.date);
   }
 };
 </script>
@@ -98,6 +119,13 @@ export default {
   font-weight: 400;
   width: 95%;
   text-align: justify;
+}
+.back_button {
+  margin: 10px;
+  a {
+    text-decoration: none;
+    font-weight: 400;
+  }
 }
 </style>
 

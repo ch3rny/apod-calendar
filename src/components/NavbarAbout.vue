@@ -12,22 +12,8 @@ import { extractDate } from "@/utils";
 export default {
   data() {
     return {
-      year: new Date().getFullYear(),
-      month: new Date().getMonth(),
-      monthNames: [
-        "Январь",
-        "Февраль",
-        "Март",
-        "Апрель",
-        "Май",
-        "Июнь",
-        "Июль",
-        "Август",
-        "Сентябрь",
-        "Октябрь",
-        "Ноябрь",
-        "Декабрь"
-      ]
+      // year: new Date().getFullYear(),
+      // month: new Date().getMonth()
     };
   },
   computed: {
